@@ -1,12 +1,13 @@
 <template>
   <div>
-
+    <!-- 新建清单按钮 -->
     <el-row>
       <el-col :span="24">
           <el-button type="info" style="width: 100%; font-weight: bold;" @click="dialogFormVisible = true">新 建 清 单</el-button>
       </el-col>
     </el-row>
 
+    <!-- 清单列表+编辑按钮 -->
     <el-row v-for="list in lists">
       <el-col :span="18">
         <a>{{list.title}}</a>
@@ -16,6 +17,7 @@
       </el-col>
     </el-row>
 
+    <!-- 弹出框 -->
     <el-dialog title="清单名称" :visible.sync="dialogFormVisible">
       <el-form :model="form">
         <el-form-item>
@@ -35,10 +37,19 @@
   export default {
     data() {
       return {
-        lists: [{ title: '电影清单' }, { title: '购物清单' }, {title: '阅读清单' }],
+        lists: [],
         dialogFormVisible: false,
         listname: ''
       }
+    },
+    // 使用axios请求数据
+    mounted() {
+      this.$ajax({
+        method:'GET',
+        url:'http://127.0.0.1:5000/'
+      }).then(result => {
+        this.lists = result.data
+      })
     },
     methods: {
       listsAdd() {
