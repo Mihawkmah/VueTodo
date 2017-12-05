@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Flask, jsonify, make_response
 from functools import wraps
 import pymongo
+from bson.objectid import ObjectId
 
 # 初始化flask应用
 app = Flask(__name__)
@@ -27,9 +28,4 @@ lists = db.lists
 #         }
 #     ]
 # }
-
-a = lists.find({'title':'电影清单'})
-b = []
-for x in a:
-    b.append({'_id':x['_id'],'title':x['title']})
-b
+lists.remove({'title':'电影清单'})

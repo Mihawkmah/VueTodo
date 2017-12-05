@@ -3,7 +3,7 @@
     <!-- 新建清单按钮 -->
     <el-row>
       <el-col :span="24">
-          <el-button type="info" style="width: 100%; font-weight: bold;" @click="dialogFormVisible = true">新 建 清 单</el-button>
+          <el-button type="info" style="width: 100%; font-weight: bold;" @click="addListVisible = true">新 建 清 单</el-button>
       </el-col>
     </el-row>
 
@@ -13,20 +13,33 @@
         <a>{{list.title}}</a>
       </el-col>
       <el-col :span="6">
-        <i class="el-icon-edit" style="cursor:pointer" @click="dialogFormVisible = true"></i>
+        <i class="el-icon-edit" style="cursor:pointer" @click="goList(list._id,list.title)"></i>
       </el-col>
     </el-row>
 
-    <!-- 弹出框 -->
-    <el-dialog title="清单名称" :visible.sync="dialogFormVisible">
+    <!-- 新建清单弹出框 -->
+    <el-dialog title="清单名称" :visible.sync="addListVisible">
       <el-form :model="form">
         <el-form-item>
-          <el-input v-model="listname" auto-complete="off"></el-input>
+          <el-input v-model="listtitle" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">删除清单</el-button>
-        <el-button type="primary" @click="listsAdd">确定</el-button>
+        <el-button @click="addListVisible = false">取消</el-button>
+        <el-button type="primary" @click="listAdd">保存</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 编辑清单弹出框 -->
+    <el-dialog title="清单名称" :visible.sync="editListVisible">
+      <el-form :model="form">
+        <el-form-item>
+          <el-input v-model="listtitle" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="listDel()">删除清单</el-button>
+        <el-button type="primary" @click="listUpd">确定修改</el-button>
       </div>
     </el-dialog>
 
@@ -38,26 +51,46 @@
     data() {
       return {
         lists: [],
-        dialogFormVisible: false,
-        listname: ''
+        addListVisible: false,
+        editListVisible: false,
+        listtitle: '',
+        listId: ''
       }
     },
     // 使用axios请求数据
     mounted() {
-      this.$ajax({
-        method:'GET',
-        url:'http://127.0.0.1:5000/'
-      }).then(result => {
+      this.$ajax.get('http://127.0.0.1:5000/')
+      .then(result => {
         this.lists = result.data
       })
     },
     methods: {
-      listsAdd() {
-        this.lists.push({
-          title: this.listname
-        });
-        this.listname = '';
-        this.dialogFormVisible = false;
+      goList(id,title) {
+        this.listId = id,
+        this.listtitle = title,
+        this.editListVisible = true
+      },
+      listAdd() {
+        this.$ajax.post('http://127.0.0.1:5000/add',{"title": this.listtitle})
+        .then(result => {
+          this.lists = result.data
+        }),
+        this.listtitle = '';
+        this.addListVisible = false;
+      },
+      listDel() {
+        this.$ajax.post('http://127.0.0.1:5000/delete',{"listId": this.listId})
+        .then(result => {
+          this.lists = result.data
+        })
+        this.editListVisible = false
+      },
+      listUpd() {
+        this.$ajax.post('http://127.0.0.1:5000/update',{"listId": this.listId,"title":this.listtitle})
+        .then(result => {
+          this.lists = result.data
+        })
+        this.editListVisible = false
       }
     }
   }
