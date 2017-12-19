@@ -29,20 +29,35 @@
         todo: {
           title: '大电影清单'
         },
-        items: [
-        { checked: true, text: '肖申克的救赎', isDelete: false },
-        { checked: false, text: '香水', isDelete: false },
-        { checked: false, text: '包法利夫人', isDelete: false }
-        ],
+        items: [],
         text: ''
       }
     },
+    watch: {
+      '$route.params.id'() {
+        // 监听$route.params.id的变化，如果这个id即代表用户点击了其他的待办项需要重新请求数据。
+        this.init();
+      }
+    },
+    created() {
+      // created生命周期，在实例已经创建完成，页面还没渲染时调用init方法。
+      this.init();
+    },
     methods: {
+      init() {
+        // 获取到 $route下params下的id,即我们在list.vue组件处传入的数据。
+        this.$ajax.post('http://127.0.0.1:5000/todos',{"listId": this.$route.params.id})
+        .then(result => {
+          this.items = result.data
+        })
+      },
       onAdd() {
-        this.items.push({
-          checked: false, text: this.text, isDelete: false
-        }); // 当用户点击回车时候 ，给items的值新增一个对象，this.text 即输入框绑定的值
-        this.text = ''; //初始化输入框的值。
+        this.$ajax.post('http://127.0.0.1:5000/todos/add',{"listId": this.$route.params.id, "todoTitle": this.text})
+        this.text = '';
+        location.reload()
+      },
+      delTodo(item) {
+        this.$ajax.post('http://127.0.0.1:5000/todos/delete',{"listId": this.$route.params.id, "item": item})
       }
     },
     components: {

@@ -13,7 +13,7 @@
         <a>{{list.title}}</a>
       </el-col>
       <el-col :span="6">
-        <i class="el-icon-edit" style="cursor:pointer" @click="goList(list._id,list.title)"></i>
+        <i class="el-icon-edit" style="cursor:pointer" @click="goList(list)"></i>
       </el-col>
     </el-row>
 
@@ -21,7 +21,7 @@
     <el-dialog title="清单名称" :visible.sync="addListVisible">
       <el-form :model="form">
         <el-form-item>
-          <el-input v-model="listtitle" auto-complete="off"></el-input>
+          <el-input v-model="listTitle" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -34,7 +34,7 @@
     <el-dialog title="清单名称" :visible.sync="editListVisible">
       <el-form :model="form">
         <el-form-item>
-          <el-input v-model="listtitle" auto-complete="off"></el-input>
+          <el-input v-model="listTitle" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -53,7 +53,7 @@
         lists: [],
         addListVisible: false,
         editListVisible: false,
-        listtitle: '',
+        listTitle: '',
         listId: ''
       }
     },
@@ -64,32 +64,34 @@
         this.lists = result.data
       })
     },
+    watch: {
+      'listId'(id) {
+        this.$router.push({ name: 'todo', params: { id: id } });
+        //监听到用户的点击listId的变化在跳转路由
+      }
+    },
     methods: {
-      goList(id,title) {
-        this.listId = id,
-        this.listtitle = title,
+      goList(tlist) {
+        this.listId = tlist._id,
+        this.listTitle = tlist.title,
         this.editListVisible = true
       },
       listAdd() {
-        this.$ajax.post('http://127.0.0.1:5000/add',{"title": this.listtitle})
+        this.$ajax.post('http://127.0.0.1:5000/add',{"title": this.listTitle})
         .then(result => {
           this.lists = result.data
         }),
-        this.listtitle = '';
+        this.listTitle = '';
         this.addListVisible = false;
       },
       listDel() {
         this.$ajax.post('http://127.0.0.1:5000/delete',{"listId": this.listId})
-        .then(result => {
-          this.lists = result.data
-        })
+        location.reload()
         this.editListVisible = false
       },
       listUpd() {
-        this.$ajax.post('http://127.0.0.1:5000/update',{"listId": this.listId,"title":this.listtitle})
-        .then(result => {
-          this.lists = result.data
-        })
+        this.$ajax.post('http://127.0.0.1:5000/update',{"listId": this.listId, "title":this.listTitle})
+        location.reload()
         this.editListVisible = false
       }
     }

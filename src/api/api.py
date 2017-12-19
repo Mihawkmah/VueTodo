@@ -56,7 +56,7 @@ def get_lists():
 @allow_cross_domain
 def add_list():
     title = request.values.get('title')
-    lists.insert_one({'title': title, "created_time": datetime.now()})
+    lists.insert_one({'title': title, "created_time": datetime.now(), "todolist":[]})
     relist = []
     for x in lists.find():
         relist.append({'_id':str(x['_id']),'title':x['title']})
@@ -67,10 +67,7 @@ def add_list():
 def del_list():
     listId = request.values.get('listId')
     lists.remove({'_id':ObjectId(listId)})
-    relist = []
-    for x in lists.find():
-        relist.append({'_id':str(x['_id']),'title':x['title']})
-    return jsonify(relist)
+    return jsonify('删除成功')
 
 # 修改清单
 @app.route('/update', methods=['POST'])
@@ -78,25 +75,43 @@ def upd_list():
     listId = request.values.get('listId')
     title = request.values.get('title')
     lists.update({'_id':ObjectId(listId)},{"$set":{"title":title}})
-    relist = []
-    for x in lists.find():
-        relist.append({'_id':str(x['_id']),'title':x['title']})
-    return jsonify(relist)
+    return jsonify('修改成功')
 
 # 检索任务
-@app.route('/todos/<string:_id>', methods=['GET'])
+@app.route('/todos', methods=['POST'])
 @allow_cross_domain
-def get_todos(_id):
-    retodos = lists.find_one({'_id':ObjectId(_id)})['todolist']
+def get_todos():
+    listId = request.values.get('listId')
+    retodos = lists.find_one({'_id':ObjectId(listId)})['todolist']
     return jsonify(retodos)
 
-# 更新任务
-# @app.route('/', methods=['PUT'])
-# def update_todo():
-#     lists.update({'title':"阅读清单"},{"$push":{'todolist':{'title':"你你你你...."}}})
-#     return "成功新建任务"
+# 新增任务
+@app.route('/todos/add', methods=['POST'])
+@allow_cross_domain
+def add_todos():
+    listId = request.values.get('listId')
+    todoTitle = request.values.get('todoTitle')
+    todolist = lists.find_one({'_id':ObjectId(listId)})['todolist']
+    todolist.append({"title":todoTitle, "completed": "False", "isdelete": "False", "created_time": datetime.now()})
+    lists.update({'_id':ObjectId(listId)},{"$set":{"todolist":todolist}})
+    return jsonify('新增任务成功')
 
 # 删除任务
+@app.route('/todos/delete', methods=['POST'])
+@allow_cross_domain
+def del_todos():
+    listId = request.values.get('listId')
+    item = request.values.get('item')
+    todolist = lists.find_one({'_id':ObjectId(listId)})['todolist']
+    index = todolist.indexOf(item)
+    todolist.splice(index, 1)
+    lists.update({'_id':ObjectId(listId)},{"$set":{"todolist":todolist}})
+    return jsonify('删除任务成功')
+
+
+# 更新任务
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

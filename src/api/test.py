@@ -28,4 +28,8 @@ lists = db.lists
 #         }
 #     ]
 # }
-lists.remove({'title':'电影清单'})
+
+a = lists.find_one({"title":"电影清单"})['todolist']
+a[0]
+
+# lists.update({"title":"电影清单"},{"$set":{"todolist":a}})

@@ -5,7 +5,7 @@
     <el-aside width="200px"><list></list></el-aside>
 
     <el-container>
-    <el-main><todo></todo></el-main>
+    <el-main> <router-view></router-view> </el-main>
     </el-container>
 
   </el-container>

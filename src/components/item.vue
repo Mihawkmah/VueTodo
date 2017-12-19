@@ -3,13 +3,13 @@
   <div>
     <el-row class="itemcss">
       <el-col :span="1">
-        <el-checkbox v-model="item.checked"></el-checkbox>
+        <el-checkbox v-model="item.completed"></el-checkbox>
       </el-col>
       <el-col :span="22">
-        <input v-model="item.text" style="border:0px;background-color:transparent;font-size:14px;" type="text" name="fname" />
+        <input v-model="item.title" style="border:0px;background-color:transparent;font-size:14px;" type="text" name="fname" />
       </el-col>
       <el-col :span="1">
-              <i class="el-icon-delete"></i>
+              <i class="el-icon-delete" style="cursor:pointer" @click="delTodo(item)"></i>
       </el-col>
     </el-row>
   </div>
