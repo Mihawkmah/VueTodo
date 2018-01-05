@@ -82,8 +82,9 @@ def upd_list():
 @allow_cross_domain
 def get_todos():
     listId = request.values.get('listId')
+    relist = lists.find_one({'_id':ObjectId(listId)})
     retodos = lists.find_one({'_id':ObjectId(listId)})['todolist']
-    return jsonify(retodos)
+    return jsonify({'id':str(relist['_id']),'title':relist['title'],'todolist':retodos})
 
 # 新增任务
 @app.route('/todos/add', methods=['POST'])
@@ -96,21 +97,17 @@ def add_todos():
     lists.update({'_id':ObjectId(listId)},{"$set":{"todolist":todolist}})
     return jsonify('新增任务成功')
 
-# 删除任务
-@app.route('/todos/delete', methods=['POST'])
-@allow_cross_domain
-def del_todos():
-    listId = request.values.get('listId')
-    item = request.values.get('item')
-    todolist = lists.find_one({'_id':ObjectId(listId)})['todolist']
-    index = todolist.indexOf(item)
-    todolist.splice(index, 1)
-    lists.update({'_id':ObjectId(listId)},{"$set":{"todolist":todolist}})
-    return jsonify('删除任务成功')
-
-
 # 更新任务
-
+@app.route('/todos/update', methods=['POST'])
+@allow_cross_domain
+def todoUpd():
+    listId = request.values.get('id')
+    isdelete = request.values.get('isdelete')
+    index = int(request.values.get('index'))
+    todolist = lists.find_one({'_id':ObjectId(listId)})['todolist']
+    todolist[index]['isdelete']= isdelete
+    lists.update({'_id':ObjectId(listId)},{"$set":{"todolist":todolist}})
+    return jsonify('更新任务成功')
 
 
 if __name__ == '__main__':

@@ -10,10 +10,11 @@
       </el-col>
     </el-row>
 
+    <!-- 任务列表 -->
     <el-row>
       <el-col :span="24">
-        <div v-for="item in items">
-          <item :item="item"></item>
+        <div v-for="(item,index) in items">
+          <item :item="item" :index="index" :id="todo.id" :init="init"></item>
         </div>
       </el-col>
     </el-row>
@@ -27,7 +28,8 @@
     data() {
       return {
         todo: {
-          title: '大电影清单'
+          id: '',
+          title: ''
         },
         items: [],
         text: ''
@@ -48,16 +50,15 @@
         // 获取到 $route下params下的id,即我们在list.vue组件处传入的数据。
         this.$ajax.post('http://127.0.0.1:5000/todos',{"listId": this.$route.params.id})
         .then(result => {
-          this.items = result.data
+          this.items = result.data.todolist
+          this.todo.title = result.data.title
+          this.todo.id = result.data.id
         })
       },
       onAdd() {
         this.$ajax.post('http://127.0.0.1:5000/todos/add',{"listId": this.$route.params.id, "todoTitle": this.text})
         this.text = '';
         location.reload()
-      },
-      delTodo(item) {
-        this.$ajax.post('http://127.0.0.1:5000/todos/delete',{"listId": this.$route.params.id, "item": item})
       }
     },
     components: {
